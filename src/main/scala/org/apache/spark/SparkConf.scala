@@ -543,11 +543,18 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
       "spark.shuffle.safetyFraction",
       "spark.storage.unrollFraction",
       "spark.storage.safetyFraction")
+    // Modified
+    val autoBufferSize = "spark.auto.buffer"
+    val bufferSize = getInt(autoBufferSize, 5)
+    if (bufferSize<0) {
+      throw new IllegalArgumentException(
+        s"buffer size should be larger than 0 (was '$bufferSize').")
+    }
     val autoMemoryKeys = Seq(
-      "spark.auto.storageFraction",
+      "spark.auto.initialFraction",
       "spark.auto.fraction",
-      "spark.auto.unrollFraction"
-    )
+      "spark.auto.unrollFraction",
+      "spark.auto.step")
     val memoryKeys = Seq(
       "spark.memory.fraction",
       "spark.memory.storageFraction") ++

@@ -445,7 +445,15 @@ private[spark] class Executor(
         // If the task has been killed, let's fail it.
         task.context.killTaskIfInterrupted()
 
-        val autoMemoryManager = env.memoryManager
+        // Modified
+        if (conf.getInt("spark.memory.useLegacyMode", 1)==2) {
+          val autoMemoryManager = (env.memoryManager).asInstanceOf[AutoTuneMemoryManager]
+          autoMemoryManager.barChange(taskFinish - taskStartTime,
+            computeTotalGcTime() - startGCTime)
+        }
+        else {
+          logInfo(s"AutoMemoryManager is disabled")
+        }
 
 
         val resultSer = env.serializer.newInstance()

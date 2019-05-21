@@ -31,7 +31,7 @@ import org.apache.spark.api.python.PythonWorkerFactory
 import org.apache.spark.broadcast.BroadcastManager
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config._
-import org.apache.spark.memory.{MemoryManager, StaticMemoryManager, UnifiedMemoryManager}
+import org.apache.spark.memory.{MemoryManager, StaticMemoryManager, UnifiedMemoryManager, AutoTuneMemoryManager}
 import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.network.netty.NettyBlockTransferService
 import org.apache.spark.rpc.{RpcEndpoint, RpcEndpointRef, RpcEnv}
@@ -322,19 +322,22 @@ object SparkEnv extends Logging {
       shortShuffleMgrNames.getOrElse(shuffleMgrName.toLowerCase(Locale.ROOT), shuffleMgrName)
     val shuffleManager = instantiateClass[ShuffleManager](shuffleMgrClass)
 
-    val useLegacyMemoryManager = conf.getInt("spark.memory.useLegacyMode", 1)
+    val useLegacyMemoryManager = conf.getInt("spark.memory.useLegacyMode", 1  )
 //    val memoryManager: MemoryManager =
 //      if (useLegacyMemoryManager) {
 //        new StaticMemoryManager(conf, numUsableCores)
 //      } else {
 //        UnifiedMemoryManager(conf, numUsableCores)
 //      }
+    logDebug(s"useLegacy is ${useLegacyMemoryManager}")
     // modified
     val memoryManager: MemoryManager = useLegacyMemoryManager match {
-    case 0: new StaticMemoryManager(conf, numUsableCores)
-    case 1: UnifiedMemoryManager(conf, numUsableCores)
-    case 2: AutoTuneMemoryManager(conf, numUsableCores)
+    case 0 => new StaticMemoryManager(conf, numUsableCores)
+    case 1 => UnifiedMemoryManager(conf, numUsableCores)
+    case 2 => new AutoTuneMemoryManager(conf, numUsableCores)
     }
+
+
 
     val blockManagerPort = if (isDriver) {
       conf.get(DRIVER_BLOCK_MANAGER_PORT)
