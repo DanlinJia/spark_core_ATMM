@@ -456,6 +456,22 @@ private[spark] class Executor(
         }
 
 
+        // PrintWriter records task metric
+        // import java.io._
+        // def writeFile(filename: String, s: String): Unit = {
+        //   val file = new File(filename)
+        //   val bw = new BufferedWriter(new FileWriter(file))
+        //   bw.write(s)
+        //   bw.close()
+        // }
+
+        // val filename = s"./${env.conf.app_id}.txt" 
+        //task id, execution time, gc time, used storage memory, used execution memory, total storage memory, total execution memory
+        val s = s"${taskId}, ${taskFinish - taskStartTime}, ${computeTotalGcTime() - startGCTime}," +
+                s"${env.memoryManager.storageMemoryUsed}, ${env.memoryManager.executionMemoryUsed}," +
+                s"${env.memoryManager.storageMemory}, ${env.memoryManager.executionMemory}\n"
+        // writeFile(filename, s)
+        logInfo("Task Trace:"+s)
         val resultSer = env.serializer.newInstance()
         val beforeSerialization = System.currentTimeMillis()
         val valueBytes = resultSer.serialize(value)
