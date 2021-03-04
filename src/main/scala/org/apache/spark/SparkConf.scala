@@ -555,10 +555,17 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
       "spark.auto.fraction",
       "spark.auto.unrollFraction",
       "spark.auto.step")
+    val qlearnMemoryKeys = Seq(
+      "spark.qlearn.initialFraction",
+      "spark.qlearn.fraction",
+      "spark.qlearn.unrollFraction",
+      "spark.qlearn.discountFactor",
+      "spark.qlearn.alpha",
+      "spark.qlearn.epsilon")
     val memoryKeys = Seq(
       "spark.memory.fraction",
       "spark.memory.storageFraction") ++
-      deprecatedMemoryKeys ++ autoMemoryKeys
+      deprecatedMemoryKeys ++ autoMemoryKeys ++ qlearnMemoryKeys
     for (key <- memoryKeys) {
       val value = getDouble(key, 0.5)
       if (value > 1 || value < 0) {
@@ -585,6 +592,7 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
       * 0: Static Memory Manager
       * 1: Dynamic Memory Manager
       * 2: AutoTuning Memory Manager
+      * 3: Qlearning Memory Manager
       */
     val legacyMemoryManagementKey = "spark.memory.useLegacyMode"
     val legacyMemoryManagement = getInt(legacyMemoryManagementKey, 1)

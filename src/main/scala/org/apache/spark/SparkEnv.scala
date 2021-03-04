@@ -31,7 +31,7 @@ import org.apache.spark.api.python.PythonWorkerFactory
 import org.apache.spark.broadcast.BroadcastManager
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config._
-import org.apache.spark.memory.{MemoryManager, StaticMemoryManager, UnifiedMemoryManager, AutoTuneMemoryManager}
+import org.apache.spark.memory.{MemoryManager, StaticMemoryManager, UnifiedMemoryManager, AutoTuneMemoryManager, QLearningMemoryManager}
 import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.network.netty.NettyBlockTransferService
 import org.apache.spark.rpc.{RpcEndpoint, RpcEndpointRef, RpcEnv}
@@ -335,6 +335,7 @@ object SparkEnv extends Logging {
     case 0 => new StaticMemoryManager(conf, numUsableCores)
     case 1 => UnifiedMemoryManager(conf, numUsableCores)
     case 2 => new AutoTuneMemoryManager(conf, numUsableCores)
+    case 3 => new QLearningMemoryManager(conf, numUsableCores)
     }
 
 

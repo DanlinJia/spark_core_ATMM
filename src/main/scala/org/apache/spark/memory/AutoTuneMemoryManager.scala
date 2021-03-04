@@ -183,7 +183,13 @@ private[spark] class AutoTuneMemoryManager(
     def computeMaxExecutionPoolSize(): Long = {
       maxMemory - heapStorageMemory
     }
-
+    val exec_used = onHeapExecutionMemoryPool.memoryUsed
+    val storage_used = onHeapStorageMemoryPool.memoryUsed
+    val exec_pool = onHeapExecutionMemoryPool.poolSize
+    val storage_pool = onHeapStorageMemoryPool.poolSize
+    val heapstorage = heapStorageMemory
+    logInfo("exec_used, storage_used, exec_pool, storage_pool, heapstorage")
+    logInfo(s"runtime_trace:$exec_used, $storage_used, $exec_pool, $storage_pool, $heapstorage")
     executionPool.acquireMemory(
       numBytes, taskAttemptId, maybeGrowExecutionPool, () => computeMaxExecutionPoolSize)
   }
@@ -274,6 +280,7 @@ object AutoTuneMemoryManager {
 
   private def getInitialStorageMemory(conf: SparkConf): Long = {
     val initialStorageFraction = conf.getDouble("spark.auto.initialFraction", 0.5)
+    val safetyFraction = conf.getDouble("spark.storage.safetyFraction", 0.9)
     (getMaxHeap(conf) * initialStorageFraction).toLong
   }
 

@@ -96,6 +96,12 @@ private[spark] class StaticMemoryManager(
       numBytes: Long,
       taskAttemptId: Long,
       memoryMode: MemoryMode): Long = synchronized {
+    val exec_used = onHeapExecutionMemoryPool.memoryUsed
+    val storage_used = onHeapStorageMemoryPool.memoryUsed
+    val exec_pool = onHeapExecutionMemoryPool.poolSize
+    val storage_pool = onHeapStorageMemoryPool.poolSize
+    logInfo("exec_used, storage_used, exec_pool, storage_pool")
+    logInfo(s"runtime_trace:$exec_used, $storage_used, $exec_pool, $storage_pool")
     memoryMode match {
       case MemoryMode.ON_HEAP => onHeapExecutionMemoryPool.acquireMemory(numBytes, taskAttemptId)
       case MemoryMode.OFF_HEAP => offHeapExecutionMemoryPool.acquireMemory(numBytes, taskAttemptId)

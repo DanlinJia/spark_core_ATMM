@@ -447,12 +447,16 @@ private[spark] class Executor(
 
         // Modified
         if (conf.getInt("spark.memory.useLegacyMode", 1)==2) {
+          logInfo(s"AutoMemoryManager enabled")
           val autoMemoryManager = (env.memoryManager).asInstanceOf[AutoTuneMemoryManager]
           autoMemoryManager.barChange(taskFinish - taskStartTime,
             computeTotalGcTime() - startGCTime)
         }
-        else {
-          logInfo(s"AutoMemoryManager is disabled")
+        else if (conf.getInt("spark.memory.useLegacyMode", 1)==3) {
+          logInfo(s"QLearningMemoryManager enabled")
+          val qlearnMemoryManager = (env.memoryManager).asInstanceOf[QLearningMemoryManager]
+          qlearnMemoryManager.QLearnigAgent(taskFinish - taskStartTime,
+            computeTotalGcTime() - startGCTime)
         }
 
 
